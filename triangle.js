@@ -55,7 +55,7 @@ async function main() {
         label: 'canvas renderPass',
         colorAttachments: [
             {
-                // view <- to be filled out when we render [Ed: ?]
+                // view <- gets filled in in first line of render() (why?)
                 clearValue: [.3, .3, .3, 1],
                 loadOp: 'clear',
                 storeOp: 'store'
@@ -79,7 +79,7 @@ async function main() {
         pass.end();
 
         const commandBuffer = encoder.finish();
-        device.queue.submit([commandBuffer]);
+        device.queue.submit([commandBuffer]); // nothing happens until here - where the commands are all sent to the queue
     }
 
     render();
