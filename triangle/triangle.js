@@ -16,36 +16,28 @@ async function main() {
         format: presentationFormat,
     });
 
+    const response = await fetch("./triangle.wgsl");
+    if(!response.ok) {
+        fail("Failed to load shaders");
+        return;
+    }
+
+    const shaderCode = await response.text();
+
     const module = device.createShaderModule({
         label: 'red triangle',
-        code: /* wgsl */`
-            @vertex fn vs(
-                @builtin(vertex_index) vertexIndex : u32
-            ) -> @builtin(position) vec4f {
-                let pos = array(
-                    vec2f(0.0, 0.5),
-                    vec2f(-0.5, -0.5),
-                    vec2f(0.5, -0.5)
-                );
-                
-                return vec4f(pos[vertexIndex], 0.0, 1.0);
-            }
-
-            @fragment fn fs() -> @location(0) vec4f {
-                return vec4f(1.0, 0.0, 0.0, 1.0);
-            }
-        `,
+        code: shaderCode,
     });
 
     const pipeline = device.createRenderPipeline({
         label: 'red triangle pipline',
         layout: 'auto',
         vertex: { 
-            entryPoint: 'vs',
+            entryPoint: 'hardcodedTriangles',
             module,
         },
         fragment: {
-            entryPoint: 'fs',
+            entryPoint: 'headache',
             module,
             targets: [{ format: presentationFormat }],
         },
@@ -75,7 +67,7 @@ async function main() {
         // make a render pass encoder to render specific commands
         const pass = encoder.beginRenderPass(renderPassDecriptor);
         pass.setPipeline(pipeline);
-        pass.draw(3);
+        pass.draw(6);
         pass.end();
 
         const commandBuffer = encoder.finish();
