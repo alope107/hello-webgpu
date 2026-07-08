@@ -5,6 +5,8 @@ struct Uniforms {
 
 @group(0) @binding(0) var<uniform> uniforms : Uniforms;
 
+@group(0) @binding(1) var<storage, read> nums : array<f32>;
+
 @vertex fn hardcodedTriangles(
     @builtin(vertex_index) vertexIndex : u32,
 ) -> @builtin(position) vec4f {
@@ -13,9 +15,13 @@ struct Uniforms {
         vec2f(-0.5* sin(uniforms.time), -0.5),
         vec2f(0.5, -0.5),
 
-        vec2f(1.0 + uniforms.xShift, 1.0),
-        vec2f(.8 + uniforms.xShift, .8),
-        vec2f(.6 + uniforms.xShift, .8),
+        // vec2f(1.0 + uniforms.xShift, 1.0),
+        // vec2f(.8 + uniforms.xShift, .8),
+        // vec2f(.6 + uniforms.xShift, .8),
+
+        vec2f(nums[0], 1.0),
+        vec2f(nums[1], .8),
+        vec2f(nums[2], .8),
     );
     
     return vec4f(pos[vertexIndex], 0.0, 1.0);
