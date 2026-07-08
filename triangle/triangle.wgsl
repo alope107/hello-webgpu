@@ -1,5 +1,6 @@
 struct Uniforms {
     time : f32,
+    xShift : f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms : Uniforms;
@@ -12,9 +13,9 @@ struct Uniforms {
         vec2f(-0.5* sin(uniforms.time), -0.5),
         vec2f(0.5, -0.5),
 
-        vec2f(1.0, 1.0),
-        vec2f(.8, .8),
-        vec2f(.6, .8),
+        vec2f(1.0 + uniforms.xShift, 1.0),
+        vec2f(.8 + uniforms.xShift, .8),
+        vec2f(.6 + uniforms.xShift, .8),
     );
     
     return vec4f(pos[vertexIndex], 0.0, 1.0);

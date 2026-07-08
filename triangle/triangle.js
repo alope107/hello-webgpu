@@ -44,13 +44,16 @@ async function main() {
         },
     });
 
+    const uniformCount = 2;
+    const uniformData = new Float32Array(uniformCount);
+
 
     const uniformBuffer = device.createBuffer({
-        size: 4,
+        size: 4 * uniformCount, // 4 bytes per float
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    const uniformData = new Float32Array(1);
+    
 
     const bindGroup = device.createBindGroup({
         label: 'bindGroup for uniform buffer',
@@ -112,6 +115,7 @@ async function main() {
 
     function frame(timestamp) {
         uniformData[0] = timestamp / 1000;
+        uniformData[1] += -.001;
         render();
 
         requestAnimationFrame(frame);
