@@ -9,6 +9,7 @@ async function main() {
     }
 
     const canvas = document.querySelector('canvas');
+
     const context = canvas.getContext('webgpu');
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
     context.configure({
@@ -37,10 +38,26 @@ async function main() {
             module,
         },
         fragment: {
-            entryPoint: 'headache',
+            entryPoint: 'gradient',
             module,
             targets: [{ format: presentationFormat }],
         },
+    });
+
+
+    const uniformBuffer = device.createBuffer({
+        size: 4,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    const uniformData = new Float32Array(1);
+
+    const bindGroup = device.createBindGroup({
+        label: 'bindGroup for uniform buffer',
+        layout: pipeline.getBindGroupLayout(0),
+        entries: [
+            { binding: 0, resource: uniformBuffer }
+        ]
     });
 
     const renderPassDecriptor = {
@@ -56,6 +73,8 @@ async function main() {
     };
 
     function render() {
+        device.queue.writeBuffer(uniformBuffer, 0, uniformData);
+
         // get the current texture from the canvas context and set it as
         // the texture to render to
         renderPassDecriptor.colorAttachments[0].view = 
@@ -67,6 +86,7 @@ async function main() {
         // make a render pass encoder to render specific commands
         const pass = encoder.beginRenderPass(renderPassDecriptor);
         pass.setPipeline(pipeline);
+        pass.setBindGroup(0, bindGroup);
         pass.draw(6);
         pass.end();
 
@@ -74,7 +94,30 @@ async function main() {
         device.queue.submit([commandBuffer]); // nothing happens until here - where the commands are all sent to the queue
     }
 
-    render();
+    // render();
+
+    const observer = new ResizeObserver(entries => {
+        for (const entry of entries) {
+            const canvas = entry.target;
+            const width = entry.contentBoxSize[0].inlineSize;
+            const height = entry.contentBoxSize[0].blockSize;
+            canvas.width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+            canvas.height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
+        }
+
+        // render();
+    });
+
+    observer.observe(canvas);
+
+    function frame(timestamp) {
+        uniformData[0] = timestamp / 1000;
+        render();
+
+        requestAnimationFrame(frame);
+    }
+
+    requestAnimationFrame(frame);
 }
 
 function fail(msg) {

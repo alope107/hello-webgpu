@@ -15,6 +15,7 @@ async function main() {
         return;
     }
     const shaderCode = await response.text();
+    console.log(shaderCode);
 
     
     const module = device.createShaderModule({
